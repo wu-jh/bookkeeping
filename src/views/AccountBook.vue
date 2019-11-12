@@ -3,6 +3,9 @@
 		<top :title="title" :back="'ok'" @goback="$router.push('/user')" :setUp="'创建账簿'" @click="add()"></top>
 		<div class="content">
 			<accountBookList :accountBooks="accountBooks" :defaultbook="defaultbook" @set="set($event)" @details="details($event)"></accountBookList>	
+			<transition name="fade">
+				<alert v-if="alertShow">{{ alert }}</alert>
+			</transition>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -12,6 +15,7 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import accountBookList from '../components/accountBookList.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -21,6 +25,8 @@
 				title:'我的账簿',
 				accountBooks:'',
 				defaultbook:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -31,13 +37,19 @@
 			set(id){
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/book/set-default?token=' + this.token,
+					url:this.$store.state.url + '/api/book/set-default?token=' + this.token,
 					params:{book_id:id}
 				})
 				.then((res)=>{
 					res = res.data;
-					alert(res.data);
+					this.alert = res.data;
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					this.getbooks()
+					
 				})
 				.catch(err=>console.log(err))
 			},
@@ -45,7 +57,7 @@
 				//所有账簿
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/book?token=' + this.token
+					url:this.$store.state.url + '/api/book?token=' + this.token
 				})
 				.then((res)=>{
 					res = res.data;
@@ -56,7 +68,7 @@
 				//当前账簿
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/book/get-default?token=' + this.token
+					url:this.$store.state.url + '/api/book/get-default?token=' + this.token
 				})
 				.then((res)=>{
 					res = res.data;
@@ -74,7 +86,8 @@
 		components:{
 			top,
 			accountBookList,
-			bottom
+			bottom,
+			alert
 		}
 	}
 </script>
@@ -84,6 +97,14 @@
 		height:calc(100vh - 100px);
 		margin:50px 0;
 		overflow: auto;
+	}
+
+	.fade-enter-active, .fade-leave-active {
+	  transition: opacity .5s;
+	}
+
+	.fade-enter, .fade-leave-to{
+	  opacity: 0;
 	}
 
 </style>

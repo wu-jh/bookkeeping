@@ -12,6 +12,7 @@
 				<span  class="msg" @click="sms">发送验证码</span>
 				<button class="btn1" @click="submit">确认修改</button>
 			</div>	
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>	
 	</div>
@@ -20,6 +21,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -35,7 +37,9 @@
 				tel:'',
 				pwd:'',
 				imgcode:'',
-				smscode:''
+				smscode:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -46,7 +50,7 @@
 			getImg(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/captcha',
+					url:this.$store.state.url + '/api/captcha',
 				})
 				.then((res)=>{
 					res = res.data;
@@ -101,7 +105,7 @@
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/sms/verify',
+					url:this.$store.state.url + '/api/sms/verify',
 					params:{
 						mobile: this.tel,
 						captcha_code:this.imgcode,
@@ -110,7 +114,12 @@
 				})
 				.then((res)=>{
 					if(res.data.status){
-						alert(res.data.data);
+						this.alert = res.data.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}else{
 						if(res.data.data == "INVALID_CAPTCHA"){
 							this.warning = '图形验证码错误';
@@ -146,7 +155,7 @@
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/user/mobile?token='+this.token,
+					url:this.$store.state.url + '/api/user/mobile?token='+this.token,
 					params:{
 						password:this.pwd,
 						mobile:this.tel,
@@ -156,10 +165,20 @@
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
-						alert(res.data);
-						this.$router.push('/user')
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.push('/user')
+						},500)
 					}else{
-						alert(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -168,6 +187,7 @@
 		components:{
 			top,
 			bottom,
+			alert,
 		}
 	}
 </script>

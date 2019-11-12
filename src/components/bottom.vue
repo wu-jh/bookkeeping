@@ -50,11 +50,11 @@
 		position:fixed;
 		bottom:0;
 		left:0;
-		border-top:1px solid #ccc;
+		border-top:1px solid #dedede;
 		z-index:1;
-		background:#08c332;
+
 		font-size:0.85em;
-		color:#fff;
+		color:#444;
 	}
 
 	.warp{
@@ -71,6 +71,6 @@
 	}
 
 	.active{
-		color:#006cb2;
+		color:#08c332;
 	}
 </style>

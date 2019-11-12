@@ -24,6 +24,9 @@
 					<div>收入:<span  class="num">{{ summary.in }}</span></div>
 				</div>
 			</div>
+			<transition name="fade">
+				<alert v-if="alertShow">{{ alert }}</alert>
+			</transition>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -32,6 +35,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -42,7 +46,9 @@
 				id:'',
 				account:'',
 				date:'',
-				summary:''
+				summary:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -54,14 +60,20 @@
 			this.getMoney();
 			axios({
 				method:'get',
-				url:'http://jizhang-api-dev.it266.com/api/account/detail?id='+ this.id +'&token=' + this.token
+				url:this.$store.state.url + '/api/account/detail?id='+ this.id +'&token=' + this.token
 			})
 			.then((res)=>{
 				res = res.data;
 				if(res.status){
 					this.account = res.data
 				}else{
-					alert(res.data)
+					this.alert = res.data;
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+						this.$router.push('/accountList')
+					},1500)
 				}
 			})
 			.catch(err=>console.log(err));
@@ -70,7 +82,7 @@
 			getMoney(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/account/change?id='+this.id+'&token=' + this.token,
+					url:this.$store.state.url + '/api/account/change?id='+this.id+'&token=' + this.token,
 					params:{
 						month:this.date
 					}
@@ -92,7 +104,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert
 		}
 	}
 </script>

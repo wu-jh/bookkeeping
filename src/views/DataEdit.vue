@@ -12,6 +12,7 @@
 				<label><span>昵称:</span><input type="text" v-model="user.nickname"></label>
 			</div>
 			<div class="submit"><button @click="submit()">提交修改</button></div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>	
 	</div>
@@ -20,6 +21,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 	export default {
 		name:'dataEdit',
@@ -28,13 +30,15 @@
 				title:'修改资料',
 				token:'',
 				fileKey:'',
-				user:{}
+				user:{},
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
 			this.$store.commit('isLogin',this);
 			axios({
-				url:'http://jizhang-api-dev.it266.com/api/user/profile?token=' + this.token,
+				url:this.$store.state.url + '/api/user/profile?token=' + this.token,
 				method:'get'
 			})
 			.then((res)=>{
@@ -57,7 +61,7 @@
 					headers: {
 						'Content-Type': 'multipart/form-data'
 					},
-					url: 'http://jizhang-api-dev.it266.com/api/upload/image?token='+ this.token,
+					url: this.$store.state.url + '/api/upload/image?token='+ this.token,
 					data: fd
 				})
 				.then((res)=>{
@@ -66,7 +70,12 @@
 						this.fileKey = res.data.file.fileKey;
 						this.user.avatar_url = res.data.file.thumbnailUrl._temp;
 					}else{
-						alert('上传失败');
+						this.alert = '上传失败';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err => console.log(err))
@@ -74,7 +83,7 @@
 			submit(){
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/user/profile/update?token='+ this.token,
+					url:this.$store.state.url + '/api/user/profile/update?token='+ this.token,
 					params:{
 						nickname:this.user.nickname,
 						avatar:this.fileKey
@@ -83,10 +92,20 @@
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
-						alert(res.data);
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 						this.$router.push('/user')
 					}else{
-						alert(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -94,7 +113,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert
 		}
 	}
 </script>

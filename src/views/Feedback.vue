@@ -7,6 +7,7 @@
 				<input type="password" class="tel" placeholder="联系方式" v-model="tel" >
 				<textarea   class="feedback" placeholder="说说您的建议" v-model="feedback"></textarea>
 				<button class="btn1" @click="submit">提交</button>
+				<alert v-if="alertShow">{{ alert }}</alert>
 			</div>
 		</div>
 		<bottom></bottom>
@@ -16,6 +17,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -25,7 +27,9 @@
 				title:'意见反馈',
 				warning:'',
 				tel:'',
-				feedback:''
+				feedback:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -34,12 +38,17 @@
 		methods:{
 			submit(){
 				if(this.feedback == ''){
-					alert('您还没有写出您的建议呢!');
+					this.alert = '请写出您的建议吧';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/feedback/add?token=' + this.token,
+					url:this.$store.state.url + '/api/feedback/add?token=' + this.token,
 					params:{
 						content:this.feedback,
 						contact:this.tel
@@ -47,7 +56,12 @@
 				})
 				.then((res)=>{
 					res=res.data;
-					alert(res.data);
+					this.alert = res.data;
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					this.$router.push('/user')
 				})
 				.catch(err=>console.log(err))
@@ -55,7 +69,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert
 		}
 	}
 </script>

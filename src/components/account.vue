@@ -5,8 +5,8 @@
 			<div class="initial-balance">初始余额</div>
 			<div class="balance">当前余额</div>
 		</div>
-		<div class="account-warp" v-for="(item,index) in account" @click="show(index)">
-			<div :class="['account',active === index?'active':'']">
+		<div class="account-warp" v-for="(item,index) in account" @click="$emit('show',index)">
+			<div :class="['account',active === index?'active':active === ''?'':'active1']">
 				<div class="account-name">{{ item.name }}</div>
 				<div class="initial-balance">{{ item.initial_balance }}</div>
 				<div class="balance">{{ item.balance }}</div>
@@ -23,15 +23,15 @@
 <script>
 	export default {
 		name:'account',
-		props:['account'],
+		props:['account','active'],
 		data(){
 			return {
-				active:''
+				// active:''
 			}
 		},
 		methods:{
 			show(index){
-				this.active = this.active === index?'':index;
+				// this.active = this.active === index?'':index;
 			}
 		}
 	}
@@ -69,11 +69,16 @@
 		position:absolute;
 		left:0px;
 		top:0;
-		transition:all 0.7s;
+		
 	}
 
 	.active{
 		left:-90px;
+		transition:all 0.7s;
+	}
+
+	.active1{
+		left:0;
 		transition:all 0.7s;
 	}
 

@@ -7,6 +7,7 @@
 				<input type="text" v-model="tel" placeholder="需添加成员的手机号" maxlength="11">
 				<button class="submit" @click="submit">添加</button>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -15,6 +16,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -23,7 +25,9 @@
 			return {
 				title:'添加成员',
 				tel:'',
-				id:''
+				id:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -33,19 +37,29 @@
 		methods:{
 			submit(){
 				if(this.tel == ''){
-					alert('请输入需添加成员的手机号');
+					this.alert = '请输入需添加成员的手机号';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				var preg = /^1(3\d|4[05-7]|5[0-35-9]|6[25-7]|7[0-35-8]|8[0-9]|9[189])(\d{8})$/;
 				if(!preg.test(this.tel)){
-					alert('手机号格式不正确');
+					this.alert = '手机号格式不正确';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/member/add?token=' + this.token,
+					url:this.$store.state.url + '/api/member/add?token=' + this.token,
 					params:{
 						book_id:this.id,
 						mobile:this.tel
@@ -54,10 +68,20 @@
 				.then((res)=>{
 					res = res.data
 					if(res.status){
-						alert(res.data);
-						this.$router.push({'path':'/bookDetails',query:{id:this.id}})
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.push({'path':'/bookDetails',query:{id:this.id}})
+						},500)
 					}else{
-						alert('添加失败,该成员可能已经存在')
+						this.alert = '添加失败,该成员可能已经存在';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))

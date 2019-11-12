@@ -21,6 +21,7 @@
 				<input type="number" v-model="sort">
 				<input type="submit" value="提交" class="submit" @click="submit">
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -29,6 +30,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -41,6 +43,8 @@
 				initial_balance:0,
 				remark:'',
 				sort:10,
+				alertShow:false,
+				alert:'',
 			}
 		},
 		mounted(){
@@ -49,12 +53,22 @@
 		methods:{
 			submit(){
 				if(this.name == ""){
-					alert('账户名称不能为空');
+					this.alert = '账户名称不能为空';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				if(this.selected == ""){
-					alert('账户类型不能为空');
+					this.alert = '账户类型不能为空';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 				this.initial_balance = this.initial_balance ==''?0:this.initial_balance;
@@ -62,13 +76,18 @@
 
 				var preg = /^(\d+)(\.?)(\d*)$/;
 				if(!preg.test(this.initial_balance)){
-					alert('请输入正确的金额');
+					this.alert = '请输入正确的金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				axios({
 					method:"post",
-					url:'http://jizhang-api-dev.it266.com/api/account/create?token=' + this.token,
+					url:this.$store.state.url + '/api/account/create?token=' + this.token,
 					params:{
 						name:this.name,
 						type:parseInt(this.selected),
@@ -80,10 +99,20 @@
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
-						alert('添加成功');
-						this.$router.push('/accountList')
+						this.alert = '添加成功';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.push('/accountList')
+						},500)
 					}else{
-						alert(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -91,7 +120,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert,
 		}
 	}
 </script>
@@ -136,10 +166,10 @@
 			}
 		}
 		.submit{
-			background:#08c332;
-			padding:0;
-			border:none;
-			color:#fff;
+		    color: #08c332;
+		    padding: 0;
+		    border: solid 1px #08c332;
+		    background: none;
 		}
 	}
 

@@ -6,8 +6,8 @@
 			<div class="money">实际金额</div>
 			<div class="date">时间</div>
 		</div>
-		<div v-if="stay.list == ''" class="none">暂无账单</div>
-		<div v-for="(item,index) in stay.list"  class="li-warp" @click="show(index)">
+		<div v-if="stayList == ''" class="none">暂无账单</div>
+		<div v-for="(item,index) in stayList"  class="li-warp" @click="show(index)">
 			<div :class="['li',active === index?'active':'']">
 				<!-- <div class="category">{{ categorys_name[item.category_id] }}</div> -->
 				<div class="name">{{ item.total_money }}</div>			
@@ -16,19 +16,13 @@
 				<div class="operation" @click="$emit('click',item.id)">补充</div>
 			</div>
 		</div>
-		<div class="page">
-			<div class="prev" @click="$emit('prev',page.prevPage)">上一页</div>
-			<div class="number">{{ page.currentPage }}</div>
-			<div class="next" @click="$emit('next',page.nextPage)">下一页</div>
-			<div class="count">共{{ page.pageCount }}页</div>
-		</div>
 	</div>
 </template>
 
 <script>
 	export default {
 		name:'stayList',
-		props:['stay','page'],
+		props:['stayList'],
 		data(){
 			return {
 				active:'',

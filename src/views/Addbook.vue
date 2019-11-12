@@ -7,6 +7,7 @@
 				<input type="text" v-model="name" placeholder="账簿名称">
 				<button class="submit" @click="submit">添加</button>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -15,6 +16,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -23,6 +25,8 @@
 			return {
 				title:'创建账簿',
 				name:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -31,12 +35,17 @@
 		methods:{
 			submit(){
 				if(this.name == ''){
-					alert('请输入账簿名称');
+					this.alert = '请输入账簿名称';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/book/create?token=' + this.token,
+					url:this.$store.state.url + '/api/book/create?token=' + this.token,
 					params:{
 						name:this.name
 					}
@@ -44,8 +53,20 @@
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
-						alert('创建成功');
-						this.$router.push('/accountBook')
+						this.alert = '创建成功';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.push('/accountBook')
+						},500)
+					}else{
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -53,7 +74,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert,
 		}
 	}
 </script>

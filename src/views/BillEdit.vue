@@ -33,6 +33,7 @@
 					<div v-if="!isdisabled"><button class="btn" @click="submit">确认修改</button></div>
 				</div>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -41,6 +42,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -68,14 +70,19 @@
 			Initialization(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/record/detail?id='+ this.id +'&token=' + this.token,
+					url:this.$store.state.url + '/api/record/detail?id='+ this.id +'&token=' + this.token,
 				})
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
 						this.billData = res.data.items[this.index];
 					}else{
-						alert(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -94,7 +101,7 @@
 						headers: {
 							'Content-Type': 'multipart/form-data'
 						},
-						url: 'http://jizhang-api-dev.it266.com/api/upload/image?token='+ this.token,
+						url: this.$store.state.url + '/api/upload/image?token='+ this.token,
 						data: fd
 					})
 					.then((res)=>{
@@ -104,11 +111,21 @@
 								this.image_keys.push(res.data.file.fileKey);
 								this.avatar_url.push(res.data.file.thumbnailUrl._temp);
 							}else{
-								alert(res.data.message)
+								this.alert = res.data.message;
+								this.alertShow = true;
+								let rtime = setTimeout(()=>{
+									this.alertShow = false;
+									this.alert = '';
+								},1500)
 							}
 							
 						}else{
-							alert('上传失败');
+							this.alert = '上传失败';
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500)
 						}
 					})
 					.catch(err => console.log(err))
@@ -127,22 +144,37 @@
 			submit(){
 				var preg = /^(\d+)(\.?)(\d*)$/;
 				if(!preg.test(this.billData.money)){
-					alert('请输入正确的金额');
+					this.alert = '请输入正确金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 				if(this.billData.money == ""){
-					alert('记账金额不能为空');
+					this.alert = '请输入记账金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				if(this.billData.date == ""){
-					alert('日期不能为空');
+					this.alert = '请输入日期';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/record/item/update?itemId='+ this.billData.id +'&token=' + this.token,
+					url:this.$store.state.url + '/api/record/item/update?itemId='+ this.billData.id +'&token=' + this.token,
 					params:{
 						money:this.billData.money,
 						account_id:this.billData.account_id,
@@ -152,7 +184,12 @@
 				})
 				.then((res)=>{
 						res = res.data;
-						alert(res.data);
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 						if(res.status){
 							this.$router.push({'path':'/billDetails',query:{id:this.id}})
 						}
@@ -162,7 +199,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert
 		}
 	}
 </script>

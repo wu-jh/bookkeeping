@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<top :title="title"></top>
-		<div class="content">
+		<div class="content" @scroll.passive="getScroll($event)">
 			<indexHeader :time="time"  :income="income" :expend="expend"></indexHeader>
 
 			<div class="search-warp">
@@ -39,8 +39,9 @@
 				</div>
 			</div>
 
-			<billList v-if="form_value == 1" :bill="bill" @click="details($event)" @prev="paging($event)" @next="paging($event)" :page="page"/>
-			<billBook v-else :bill="bill" @click="details($event)" @prev="prev($event)" @next="next($event)" :page="page"/>
+			<billList v-if="form_value == 1" :billList="bill" @click="details($event)"/>
+			<billBook v-else :billList="written" @click="details($event)"/>
+			<div id="more" :class="['more',page.currentPage == page.pageCount?'load':'']" >正在加载 <i class="fa fa-spinner fa-pulse"></i></div>
 		</div>
 		<bottom :active="1"></bottom>
 	</div>
@@ -63,14 +64,15 @@
 				title:'每日记账',
 				income:'0.00',
 				expend:'0.00',
-				bill:{},
+				bill:[],
+				written:{},
 				time:{
 					year:'',
 					month:''
 				},
 				firstDay:'',
 				lastDay:'',
-				page:'',
+				page:[],
 				account:'',
 				account_value:'',
 				type:[
@@ -102,7 +104,7 @@
 			this.lastDay = this.time.year + '-' + this.time.month + '-' + lastTime.getDate();
 			axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/account?token=' + this.token
+					url:this.$store.state.url + '/api/account?token=' + this.token
 				})
 				.then((res)=>{
 					res = res.data;
@@ -114,7 +116,7 @@
 
 			axios({
 				method:'get',
-				url:'http://jizhang-api-dev.it266.com/api/view/home?token=' + this.token,
+				url:this.$store.state.url + '/api/view/home?token=' + this.token,
 			})
 			.then((res)=>{
 				res = res.data;
@@ -138,16 +140,22 @@
 
 			search(){
 				let obj = {}
+				this.bill = [];
+				this.written = [];
 				this.condition(obj)
 			},
 
 			firstchange(){
 				let obj = {}
+				this.bill = [];
+				this.written = [];
 				this.condition(obj)
 			},
 
 			lastchange(){
+				this.bill = [];
 				let obj = {}
+				this.written = [];
 				this.condition(obj)
 			},
 
@@ -158,6 +166,8 @@
 				}else if(e == 2){
 					this.getCategory_2()
 				}
+				this.bill = [];
+				this.written = [];
 				this.category = '';
 				this.category_value = ''
 				
@@ -167,17 +177,23 @@
 			accountchange(e){
 				this.account_value = e;
 				let obj = {}
+				this.bill = [];
+				this.written = [];
 				this.condition(obj)
 			},
 			categorychange(e){
 				this.category_value = e;
 				let obj = {}
+				this.bill = [];
+				this.written = [];
 				this.condition(obj)
 			},
 
 			formchange(e){
 				this.form_value = e;
 				let obj = {}
+				this.bill = [];
+				this.written = [];
 				this.condition(obj)
 			},
 
@@ -186,13 +202,23 @@
 				obj['page'] = e;
 				this.condition(obj);
 			},
+
+			getScroll(event){
+				let scrollBottom =event.target.scrollHeight - event.target.scrollTop - event.target.clientHeight;
+				if(scrollBottom == 0 && this.page.currentPage != this.page.pageCount){
+					let rtime = setTimeout(()=>{
+						this.paging(this.page.nextPage)
+					},500)
+				}
+			},
+
 			details(e){
 				this.$router.push({'path':'/billDetails',query:{id:e}})
 			},
 			//收入
 			getCategory_1(){
 				axios({
-					url:'http://jizhang-api-dev.it266.com/api/category?token=' + this.token,
+					url:this.$store.state.url + '/api/category?token=' + this.token,
 					method:'get',
 					params:{
 						type:1,
@@ -210,7 +236,7 @@
 			//支出
 			getCategory_2(){
 				axios({
-					url:'http://jizhang-api-dev.it266.com/api/category?token=' + this.token,
+					url:this.$store.state.url + '/api/category?token=' + this.token,
 					method:'get',
 					params:{
 						type:2,
@@ -230,13 +256,12 @@
 			getbill(obj){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/record/real?token=' + this.token,
+					url:this.$store.state.url + '/api/record/real?token=' + this.token,
 					params:obj
 				})
 				.then((res)=>{
 					res = res.data;
-					console.log(res)
-					this.bill = res.data;
+					this.bill = this.bill.concat(res.data.list);
 					this.page = res.data.page;
 					this.open = false;
 				})
@@ -247,12 +272,12 @@
 			accountBook(obj){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/record/account?token=' + this.token,
+					url:this.$store.state.url + '/api/record/account?token=' + this.token,
 					params:obj
 				})
 				.then((res)=>{
 					res = res.data;
-					this.bill = res.data;
+					this.written = this.written.concat(res.data.list);
 					this.page = res.data.page;
 					this.open = false;
 				})
@@ -287,6 +312,7 @@
 					this.accountBook(obj);
 				}
 			},
+			
 		},
 		components:{
 			top,
@@ -397,4 +423,14 @@
 		}
 	}
 
+	.more{
+		font-size:0.8em;
+		color:#666;
+		text-align:center;
+		padding:10px 0;
+	}
+
+	.load{
+		display:none;
+	}
 </style>

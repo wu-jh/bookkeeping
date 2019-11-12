@@ -20,9 +20,12 @@
 			</div>
 			<div  class="member">
 				<div class="title">账簿成员:</div>
-				<memberList v-if="jurisdiction" :members="member" @addmember="addmember" @del="del($event)"></memberList>
+				<memberList v-if="jurisdiction" :members="member" @addmember="addmember" @del="delmember($event)"></memberList>
 				<div v-else class="title">您没有查看成员的权限</div>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
+			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
+			<confirm v-if="confirmShow1" @choice="choice1($event)">{{ confirm1 }}</confirm>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -32,6 +35,8 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import memberList from '../components/memberList.vue'
+	import alert from '../components/alert.vue'
+	import confirm from '../components/confirm.vue'
 	import axios from 'axios'
 
 	export default {
@@ -44,6 +49,13 @@
 				active:true,
 				member:'',
 				jurisdiction:'',
+				alert:'',
+				alertShow:false,
+				confirm:'',
+				confirmShow:false,
+				confirm1:'',
+				confirmShow1:false,
+				did:'',
 			}
 		},
 		mounted(){
@@ -57,35 +69,22 @@
 				this.active = false;
 			},
 			del(){
-				if(!confirm('您确定要删除吗?')){
-					return;
-				}
-				axios({
-					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/book/delete?token=' + this.token,
-					params:{
-						book_id:this.id
-					}
-				})
-				.then((res)=>{
-					res = res.data;
-					if(res.status){
-						alert('删除成功');
-						this.$router.push('/accountBook')
-					}else{
-						alert(res.data);
-					}
-				})
-				.catch(err=>console.log(err))
+				this.confirm = '您确定要删除吗?';
+				this.confirmShow = true;
 			},
 			submit(){
-				if(this.name == ''){
-					alert('请输入账簿名称');
+				if(this.information.name == ''){
+					this.alert = '请输入账簿名称';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					return;
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/book/update?token=' + this.token,
+					url:this.$store.state.url + '/api/book/update?token=' + this.token,
 					params:{
 						book_id:this.information.id,
 						book_name:this.information.name
@@ -94,10 +93,20 @@
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
-						alert('修改成功');
-						this.$router.push('/accountBook')
+						this.alert = '修改成功';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.push('/accountBook')
+						},500)
 					}else{
-						alert(res.data);
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 						this.getinfomation();
 						this.active = true;
 					}
@@ -107,7 +116,7 @@
 			getinfomation(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/book/detail?token=' + this.token,
+					url:this.$store.state.url + '/api/book/detail?token=' + this.token,
 					params:{
 						book_id:this.id
 					}
@@ -117,8 +126,13 @@
 					if(res.status){
 						this.information = res.data;
 					}else{
-						alert(res.data);
-						this.$router.go(-1)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.go(-1)
+						},500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -126,7 +140,7 @@
 			getmember(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/member?token=' + this.token,
+					url:this.$store.state.url + '/api/member?token=' + this.token,
 					params:{
 						book_id:this.id
 					}
@@ -145,33 +159,86 @@
 			addmember(){
 				this.$router.push({'path':'/addmember',query:{id:this.id}})
 			},
-			del(id){
-				if(!confirm('你确定要删除吗?')){
-					return;
+			delmember(id){
+				this.confirm1 = '您确定要删除吗?';
+				this.confirmShow1 = true;
+				this.did = id;
+			},
+			choice(event){
+				if(event){
+					this.confirm = '';
+					this.confirmShow = false;
+					axios({
+						method:'get',
+						url:this.$store.state.url + '/api/book/delete?token=' + this.token,
+						params:{
+							book_id:this.id
+						}
+					})
+					.then((res)=>{
+						res = res.data;
+						if(res.status){
+							this.alert = '删除成功';
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+								this.$router.push('/accountBook')
+							},500)
+						}else{
+							his.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500)
+						}
+					})
+					.catch(err=>console.log(err))
+					
+				}else{
+					this.confirm = '';
+					this.confirmShow = false;
 				}
-				axios({
-					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/member/delete?token=' + this.token,
-					params:{
-						book_id:this.id,
-						user_id:id
-					}
-				})
-				.then((res)=>{
-					res = res.data;
-					alert(res.data)
-					if(res.status){
-						this.getinfomation();
-						this.getmember();
-					}
-				})
-				.catch(err=>console.log(err))
+			},
+			choice1(event){
+				if(event){
+					axios({
+						method:'post',
+						url:this.$store.state.url + '/api/member/delete?token=' + this.token,
+						params:{
+							book_id:this.id,
+							user_id:this.did
+						}
+					})
+					.then((res)=>{
+						res = res.data;
+						this.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500)
+						if(res.status){
+							this.getinfomation();
+							this.getmember();
+						}
+					})
+					.catch(err=>console.log(err))
+					this.confirm1 = '';
+					this.confirmShow1 = false;
+				}else{
+					this.confirm1 = '';
+					this.confirmShow1 = false;
+				}
 			}
 		},
 		components:{
 			top,
 			bottom,
-			memberList
+			memberList,
+			alert,
+			confirm,
 		}
 	}
 </script>

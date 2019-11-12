@@ -2,7 +2,9 @@
 	<div>
 		<top :title="title" :back="'ok'" @goback="$router.push('/user')" :setUp="'添加'" @click="addAccount()"></top>
 		<div class="content">
-			<account :account="account" @del='del($event)' @details="details($event)"></account>
+			<account :account="account" :active="active" @show="show($event)" @del='del($event)' @details="details($event)"></account>
+			<alert v-if="alertShow">{{ alert }}</alert>
+			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -12,6 +14,8 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import account from '../components/account.vue'
+	import alert from '../components/alert.vue'
+	import confirm from '../components/confirm.vue'
 	import axios from 'axios'
 
 	export default {
@@ -20,6 +24,12 @@
 			return {
 				title:'我的账户',
 				account:'',
+				alert:'',
+				alertShow:false,
+				confirm:'',
+				confirmShow:false,
+				id:'',
+				active:'',
 			}
 		},
 		mounted(){
@@ -36,45 +46,75 @@
 				this.$router.push('/addAccount')
 			},
 			del(e){
-				var tmp = confirm('您确定要删除吗');
-				if(!tmp){
-					return false;
-				}
-				axios({
-					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/account/delete?id='+ e +'&token=' + this.token,
-				})
-				.then((res)=>{
-					res = res.data;
-					if(res.status){
-						this.getAccount();
-					}else{
-						alert(res.data)
-					}
-				})
-				.catch(err=>console.log(err))
-				return false;
+				this.confirm = '您确定要删除吗?';
+				this.confirmShow = true;
+				this.id = e;
 			},
 			getAccount(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/account?token=' + this.token
+					url:this.$store.state.url + '/api/account?token=' + this.token
 				})
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
 						this.account = res.data;
 					}else{
-						alert(res.data);
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
+			},
+
+			choice(e){
+				if(e){
+					axios({
+						method:'post',
+						url:this.$store.state.url + '/api/account/delete?id='+ this.id +'&token=' + this.token,
+					})
+					.then((res)=>{
+						res = res.data;
+						if(res.status){
+							this.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500)
+							this.getAccount();
+							this.confirm = '';
+							this.confirmShow = false;
+							this.active = '';
+						}else{
+							this.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500)
+						}
+					})
+					.catch(err=>console.log(err))
+				}else{
+					this.confirm = '';
+					this.confirmShow = false;
+				}
+			},
+			show(index){
+				this.active = this.active === index?'1':index;
 			}
 		},
 		components:{
 			top,
 			bottom,
-			account
+			account,
+			alert,
+			confirm,
 		}
 	}
 </script>

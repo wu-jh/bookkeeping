@@ -29,7 +29,7 @@
 		mounted(){
 			this.$store.commit('isLogin',this);
 			axios({
-				url:'http://jizhang-api-dev.it266.com/api/category?token=' + this.token,
+				url:this.$store.state.url + '/api/category?token=' + this.token,
 				method:'get',
 				params:{
 					type:1,
@@ -45,7 +45,7 @@
 			.catch(err=>console.log(err))
 
 			axios({
-				url:'http://jizhang-api-dev.it266.com/api/category?token=' + this.token,
+				url:this.$store.state.url + '/api/category?token=' + this.token,
 				method:'get',
 				params:{
 					type:2,

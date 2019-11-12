@@ -4,6 +4,7 @@
 		<div class="content">
 			<mytop :user="user"></mytop>
 			<myli v-for="ul in uls" :ul="ul" @dataEdit="dataEdit()" @telEdit="telEdit()" @pwdEdit="pwdEdit()" @feedback="feedback" @exit="exit()" @accountList="accountList()" @accountBook="accountBook()"></myli>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom :active="3"></bottom>
 	</div>
@@ -14,6 +15,7 @@
 	import mytop from '../components/mytop.vue'
 	import bottom from '../components/bottom.vue'
 	import myli from '../components/myli.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -38,13 +40,15 @@
 						[
 							{text:'退出登录',icon:"fa fa-power-off",event:'exit'}
 						]
-				]
+				],
+				alertShow:false,
+				alert:'',
 			}
 		},
 		mounted(){
 			this.$store.commit('isLogin',this);
 			axios({
-				url:'http://jizhang-api-dev.it266.com/api/user/profile?token=' + this.token,
+				url:this.$store.state.url + '/api/user/profile?token=' + this.token,
 				method:'get'
 			})
 			.then((res)=>{
@@ -73,7 +77,7 @@
 			exit(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/user/logout?token=' + this.token,
+					url:this.$store.state.url + '/api/user/logout?token=' + this.token,
 
 				})
 				.then((res)=>{
@@ -82,7 +86,12 @@
 						sessionStorage.removeItem('token');
 						this.$router.push('/login');
 					}else{
-						alert('退出失败')
+						this.alert = '退出失败';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err => console.log(err))
@@ -100,7 +109,8 @@
 			top,
 			mytop,
 			bottom,
-			myli
+			myli,
+			alert
 		}
 	}
 </script>

@@ -8,6 +8,7 @@
 				<input type="password" class="pwd" placeholder="新密码" v-model="newpwd" >
 				<button class="btn1" @click="submit">确认修改</button>
 			</div>	
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>	
 	</div>
@@ -16,6 +17,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -25,7 +27,9 @@
 				title:'修改密码',
 				warning:'',
 				oldpwd:'',
-				newpwd:''
+				newpwd:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -45,7 +49,7 @@
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/user/password?token=' + this.token,
+					url:this.$store.state.url + '/api/user/password?token=' + this.token,
 					params:{
 						password:this.oldpwd,
 						new_password:this.newpwd
@@ -53,12 +57,22 @@
 				})
 				.then((res)=>{
 					res = res.data;
-					console.log(res);
+					// console.log(res);
 					if(res.status){
-						alert(res.data);
-						this.$router.push('/user')
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.push('/user')
+						},500)
 					}else{
-						alert(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -67,6 +81,7 @@
 		components:{
 			top,
 			bottom,
+			alert
 		}
 	}
 </script>

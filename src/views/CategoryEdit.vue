@@ -13,6 +13,7 @@
 				</label>
 				<div><button class="btn" @click="submit">提交</button></div>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -21,6 +22,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -30,7 +32,9 @@
 				title:'添加类别',
 				name:'',
 				sort:0,
-				id:''
+				id:'',
+				alertShow:false,
+				alert:''
 			}
 		},
 		mounted(){
@@ -44,13 +48,18 @@
 		methods:{
 			submit(){
 				if(this.name == ''){
-					alert('名称不能为空');
+					this.alert = '请输入名称';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/category/update?id='+ this.id +'&token=' + this.token,
+					url:this.$store.state.url + '/api/category/update?id='+ this.id +'&token=' + this.token,
 					params:{
 						name:this.name,
 						sort:parseInt(this.sort)
@@ -59,10 +68,20 @@
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
-						alert(res.data);
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 						this.$router.push('/categorySet')
 					}else{
-						console.log(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -70,7 +89,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert,
 		}
 	}
 </script>

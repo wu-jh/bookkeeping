@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<top :title="title"></top>
-		<div class="content">
+		<div class="content"  @scroll.passive="getScroll($event)">
 			<tab :active="type_value" @expend="typechange(1)" @income="typechange(2)" :name_1="'收入'" :name_2="'支出'"></tab>
 			<div class="search-warp">
 				<div class="search">
@@ -28,7 +28,8 @@
 					</div>
 				</div>
 			</div>
-			<stayList :stay="record"  :page="page" @prev="paging($event)" @next="paging($event)" @click="add($event)"></stayList>
+			<stayList :stayList="record"  @click="add($event)"></stayList>
+			<div id="more" :class="['more',page.currentPage == page.pageCount?'load':'']" >正在加载 <i class="fa fa-spinner fa-pulse"></i></div>
 		</div>
 		<bottom :active="4"></bottom>
 	</div>
@@ -47,7 +48,7 @@
 		data(){
 			return {
 				title:'待收支',
-				record:'',
+				record:[],
 				page:'',
 				date:{
 					year:'',
@@ -90,12 +91,12 @@
 			getdata(obj){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/record/account/waiting?token=' + this.token,
+					url:this.$store.state.url + '/api/record/account/waiting?token=' + this.token,
 					params:obj
 				})
 				.then((res)=>{
 					res = res.data;
-					this.record = res.data;
+					this.record = this.record.concat(res.data.list);
 					this.page = res.data.page;
 					this.open = false;
 				})
@@ -105,7 +106,7 @@
 			getcategory(obj){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/category?token=' + this.token,
+					url:this.$store.state.url + '/api/category?token=' + this.token,
 					params:obj
 				})
 				.then((res)=>{
@@ -119,16 +120,19 @@
 
 			search(){
 				let obj = {}
+				this.record = [];
 				this.condition(obj)
 			},
 
 			firstchange(){
 				let obj = {}
+				this.record = [];
 				this.condition(obj)
 			},
 
 			lastchange(){
 				let obj = {}
+				this.record = [];
 				this.condition(obj)
 			},
 
@@ -139,24 +143,32 @@
 				this.category_value = '';
 				this.Initialization();
 				let obj = {};
+				this.record = [];
 				this.condition(obj);
 			},
 
 			categorychange(e){
 				this.category_value = e;
 				let obj = {}
+				this.record = [];
 				this.condition(obj)
 			},
 
 			paging(e){
 				let obj = {}
-				if(this.category_value){
-					 obj['category_id'] = this.category_value;
-				}
-				obj['type'] = this.active == 1? 2:1;
 				obj['page'] = e;
-				this.getdata(obj)
+				this.condition(obj)
 			},
+
+			getScroll(event){
+				let scrollBottom =event.target.scrollHeight - event.target.scrollTop - event.target.clientHeight;
+				if(scrollBottom == 0 && this.page.currentPage != this.page.pageCount){
+					let rtime = setTimeout(()=>{
+						this.paging(this.page.nextPage)
+					},300)
+				}
+			},
+
 			
 			add(e){
 				this.$router.push({'path':'/addfollow',query:{id:e}});
@@ -295,4 +307,14 @@
 		}
 	}
 
+	.more{
+		font-size:0.8em;
+		color:#666;
+		text-align:center;
+		padding:10px 0;
+	}
+
+	.load{
+		display:none;
+	}
 </style>

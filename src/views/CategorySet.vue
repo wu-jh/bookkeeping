@@ -4,6 +4,8 @@
 		<div class="content">
 			<tab :active="active" @expend="active=1" @income="active=2" :name_1="'支出'" :name_2="'收入'"></tab>
 			<categorys :lis="active == 1?expend:income" @change="change($event)" @delete="del($event)"></categorys>
+			<alert v-if="alertShow">{{ alert }}</alert>
+			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -13,6 +15,8 @@
 	import top from '../components/top.vue'
 	import tab from '../components/tab.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
+	import confirm from '../components/confirm.vue'
 	import categorys from '../components/setcategory.vue'
 	import axios from 'axios'
 
@@ -23,7 +27,12 @@
 				title:'类别设置',
 				active:1,
 				expend:'',
-				income:''
+				income:'',
+				alert:'',
+				alertShow:false,
+				confirm:'',
+				confirmShow:false,
+				id:'',
 			}
 		},
 		mounted(){
@@ -39,24 +48,13 @@
 			},
 
 			del(e){
-				var tmp = confirm('您确认要删除吗?')
-				if(!tmp){
-					return;
-				}
-				axios({
-					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/category/delete?id='+ e.id +'&token=' + this.token,
-				})
-				.then((res)=>{
-					res = res.data;
-					alert(res.data)
-					this.getCategory()
-				})
-				.catch(err=>console.log(err))
+				this.confirm = '您确定要删除吗?';
+				this.confirmShow = true;
+				this.id = e;
 			},
 			getCategory(){
 				axios({
-					url:'http://jizhang-api-dev.it266.com/api/category?token=' + this.token,
+					url:this.$store.state.url + '/api/category?token=' + this.token,
 					method:'get',
 					params:{
 						type:1,
@@ -72,7 +70,7 @@
 				.catch(err=>console.log(err))
 
 				axios({
-					url:'http://jizhang-api-dev.it266.com/api/category?token=' + this.token,
+					url:this.$store.state.url + '/api/category?token=' + this.token,
 					method:'get',
 					params:{
 						type:2,
@@ -86,13 +84,39 @@
 					}
 				})
 				.catch(err=>console.log(err))
+			},
+			choice(event){
+				if(event){
+					axios({
+						method:'post',
+						url:this.$store.state.url + '/api/category/delete?id='+ this.id.id +'&token=' + this.token,
+					})
+					.then((res)=>{
+						res = res.data;
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
+						this.getCategory()
+					})
+					.catch(err=>console.log(err))
+					this.confirm = '';
+					this.confirmShow = false;
+				}else{
+					this.confirm = '';
+					this.confirmShow = false;
+				}
 			}
 		},
 		components:{
 			top,
 			tab,
 			categorys,
-			bottom
+			bottom,
+			alert,
+			confirm
 		}
 	}
 </script>

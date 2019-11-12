@@ -37,6 +37,9 @@
 				</div>
 				<button class="btn" @click="delAll()">删除所有记录</button>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
+			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
+			<confirm v-if="confirmShow1" @choice="choice1($event)">{{ confirm1 }}</confirm>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -45,6 +48,8 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
+	import confirm from '../components/confirm.vue'
 	import axios from 'axios'
 
 	export default {
@@ -55,6 +60,13 @@
 				id:'',
 				billData:'',
 				active:'',
+				alert:'',
+				alertShow:false,
+				confirm:'',
+				confirmShow:false,
+				confirm1:'',
+				confirmShow1:false,
+				account_id:'',
 			}
 		},
 		mounted(){
@@ -71,67 +83,105 @@
 				this.$router.push({'path':'/billModify',query:{id:this.id}})
 			},
 			delAll(){
-				let tmp = confirm('您确定要删除吗?');
-				if(!tmp){
-					return;
-				}
-
-				axios({
-					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/record/delete?id='+ this.id +'&token=' + this.token
-				})
-				.then((res)=>{
-					res = res.data;
-					if(res.status){
-						alert(res.data);
-						this.$router.push('/')
-					}else{
-						alert(res.data)
-					}
-				})
-				.catch(err=>console.log(err))
+				this.confirm = '您确定要删除吗?';
+				this.confirmShow = true;
 			},
 			del(id){
-				let tmp = confirm('您确定要删除吗?');
-				if(!tmp){
-					return;
-				}
-
-				axios({
-					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/record/item/delete?itemId='+ id +'&token=' + this.token
-				})
-				.then((res)=>{
-					res = res.data;
-					alert(res.data);
-					if(res.status){
-						this.initialize();
-					}
-				})
-				.catch(err=>console.log(err))
+				this.confirm1 = '您确定要删除吗?';
+				this.confirmShow1 = true;
+				this.account_id = id;
 			},
 			initialize(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/record/detail?id='+ this.id +'&token=' + this.token,
+					url:this.$store.state.url + '/api/record/detail?id='+ this.id +'&token=' + this.token,
 				})
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
 						this.billData = res.data
 					}else{
-						alert(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
 			},
 			edit(index){
 				this.$router.push({'path':'/BillEdit',query:{id:this.id,index:index}})
+			},
+
+			choice(event){
+				if(event){
+					axios({
+						method:'post',
+						url:this.$store.state.url + '/api/record/delete?id='+ this.id +'&token=' + this.token
+					})
+					.then((res)=>{
+						res = res.data;
+						if(res.status){
+							this.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+								this.$router.push('/')
+							},500)
+						}else{
+							this.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500)
+						}
+					})
+					.catch(err=>console.log(err))
+					this.confirm = '';
+					this.confirmShow = false;
+				}else{
+					this.confirm = '';
+					this.confirmShow = false;
+				}
+			},
+
+			choice1(event){
+				if(event){
+					axios({
+						method:'post',
+						url:this.$store.state.url + '/api/record/item/delete?itemId='+ this.account_id +'&token=' + this.token
+					})
+					.then((res)=>{
+						res = res.data;
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
+						if(res.status){
+							this.initialize();
+						}
+					})
+					.catch(err=>console.log(err))
+					this.confirm1 = '';
+					this.confirmShow1 = false;
+				}else{
+					this.confirm1 = '';
+					this.confirmShow1 = false;
+				}
 			}
+
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert,
+			confirm
 		}
 	}
 </script>

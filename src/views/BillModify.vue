@@ -11,6 +11,7 @@
 				<input type="text" v-model="billData.remark">
 				<button class="btn" @click="change()">提交修改</button>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -19,6 +20,7 @@
 <script>
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -39,17 +41,27 @@
 			change(){
 				var preg = /^(\d+)(\.?)(\d*)$/;
 				if(!preg.test(this.billData.total_money)){
-					alert('请输入正确的金额');
+					this.alert = '请输入正确金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500);
 					return;
 				}
 				if(this.money == ""){
-					alert('记账金额不能为空');
+					this.alert = '请输入记账金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/record/update?id='+ this.id +'&token=' + this.token,
+					url:this.$store.state.url + '/api/record/update?id='+ this.id +'&token=' + this.token,
 					params:{
 						total_money:this.billData.total_money,
 						company_name:this.billData.company_name,
@@ -58,7 +70,12 @@
 				})
 				.then((res)=>{
 					res = res.data;
-					alert(res.data);
+					this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					if(res.status){
 						this.$router.go(-1)
 					}
@@ -68,14 +85,19 @@
 			initialize(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/record/detail?id='+ this.id +'&token=' + this.token,
+					url:this.$store.state.url + '/api/record/detail?id='+ this.id +'&token=' + this.token,
 				})
 				.then((res)=>{
 					res = res.data;
 					if(res.status){
 						this.billData = res.data
 					}else{
-						alert(res.data)
+						this.alert = res.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
 				.catch(err=>console.log(err))
@@ -86,7 +108,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert
 		}
 	}
 </script>

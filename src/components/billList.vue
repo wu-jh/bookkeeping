@@ -5,17 +5,11 @@
 			<div class="money">金额</div>
 			<div class="date">时间</div>
 		</div>
-		<div v-if="bill.list == ''" class="no">暂无账单</div>
-		<div v-for="item in bill.list" class="li" @click="$emit('click',item.record_id)">
+		<div v-if="billList == ''" class="no">暂无账单</div>
+		<div v-for="item in billList" class="li" @click="$emit('click',item.record_id)">
 			<div class="name">{{ item.type == 1?'收入':'支出' }}</div>			
 			<div class="money">{{ item.money }}</div>
 			<div class="date">{{ item.date }}</div>
-		</div>
-		<div class="page">
-			<div class="prev" @click="$emit('prev',page.prevPage)">上一页</div>
-			<div class="number">{{ page.currentPage }}</div>
-			<div class="next" @click="$emit('next',page.nextPage)">下一页</div>
-			<div class="count">共{{ page.pageCount }}页</div>
 		</div>
 	</div>
 </template>
@@ -23,7 +17,7 @@
 <script>
 	export default {
 		name:'billList',
-		props:['bill','page']
+		props:['billList']
 	}
 </script>
 
@@ -91,4 +85,5 @@
 		font-size:0.8em;
 		text-align:center;
 	}
+
 </style>

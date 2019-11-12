@@ -3,13 +3,15 @@
 		<top :title="title"></top>
 		<div class="content">
 			<captcha :img="img" :btn1="btn1" :sms="true" :link="link" :value="value" @img="getImg()" @imgcode="value.img=$event" @imgblur="imgblur" :warning="warning" @tel="value.tel=$event" @pwd="value.pwd=$event" @smscode="value.sms=$event" @sms="sms()" @telblur="telblur" @pwdblur="pwdblur" @smsblur="smsblur" @submit="submit()" @link="golink()"/>
-		</div>	
+		</div>
+		<alert v-if="alertShow">{{ alert }}</alert>	
 	</div>
 </template>
 
 <script>
 	import top	from '../components/top.vue';
 	import captcha	from '../components/code.vue';
+	import alert from '../components/alert.vue'
 	import axios	from 'axios';
 
 	export default {
@@ -23,9 +25,11 @@
 				value:{
 					tel:'',
 					pwd:'',
-					sms:''
+					sms:'',
 				},
-				warning:''
+				warning:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
@@ -35,7 +39,7 @@
 			getImg(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/captcha',
+					url:this.$store.state.url + '/api/captcha',
 				})
 				.then((res)=>{
 					this.img = res.data.data;
@@ -89,7 +93,7 @@
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/sms/verify',
+					url:this.$store.state.url + '/api/sms/verify',
 					params:{
 						mobile: this.value.tel,
 						captcha_code:this.value.img,
@@ -136,7 +140,7 @@
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/user/token/sms',
+					url:this.$store.state.url + '/api/user/token/sms',
 					params:{
 						mobile:this.value.tel,
 						password:this.value.pwd,
@@ -146,10 +150,22 @@
 				.then((res)=>{
 					if(res.data.status){
 					}else{
-						alert(res.data.data)
+						this.alert = res.data.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
-				.catch((res)=>{alert('修改失败,请稍后再试')});
+				.catch((res)=>{
+					this.alert = '修改失败,请稍后重试';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
+				});
 			},
 			golink(){
 				this.$router.push('/login')
@@ -158,7 +174,8 @@
 		components:{
 			top,
 			captcha,
-			axios
+			axios,
+			alert
 		}
 	}
 </script>

@@ -4,6 +4,7 @@
 		<div class="content">
 			<captcha :img="img" :btn1="btn1" :warning="warning" :link="link" @img="getImg()" @sms="sms()" :value="value" @tel="value.tel=$event" @pwd="value.pwd=$event" @imgcode="value.img=$event" @smscode="value.sms=$event" @telblur="telblur" @pwdblur="pwdblur" @imgblur="imgblur" @smsblur="smsblur" @submit="submit()" @link="golink()"  :sms="true"/>
 		</div>
+		<alert v-if="alertShow">{{ alert }}</alert>
 	</div>
 </template>
 
@@ -26,7 +27,9 @@
 					img:'',
 					sms:''
 				},
-				warning:''
+				warning:'',
+				alertShow:false,
+				alert:'',
 			}
 		},
 		mounted(){
@@ -36,7 +39,7 @@
 			getImg(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/captcha',
+					url:this.$store.state.url + '/api/captcha',
 				})
 				.then((res)=>{
 					this.img = res.data.data;
@@ -95,7 +98,7 @@
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/sms/verify',
+					url:this.$store.state.url + '/api/sms/verify',
 					params:{
 						mobile: this.value.tel,
 						captcha_code:this.value.img,
@@ -104,7 +107,12 @@
 				})
 				.then((res)=>{
 					if(res.data.status){
-						alert(res.data.data);
+						this.alert = res.data.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}else{
 						if(res.data.data == "INVALID_CAPTCHA"){
 							this.warning = '图形验证码错误';
@@ -142,7 +150,7 @@
 
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/user/register',
+					url:this.$store.state.url + '/api/user/register',
 					params:{
 						mobile:this.value.tel,
 						verify:this.value.sms,
@@ -151,13 +159,30 @@
 				})
 				.then((res)=>{
 					if(res.data.status){
-						alert('注册成功,赶快去登录吧');
-						this.$router.push('/login');
+						this.alert = '注册成功快去登录吧';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+							this.$router.push('/login');
+						},500)
 					}else{
-						alert(res.data.data)
+						this.alert = res.data.data;
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
 					}
 				})
-				.catch((res)=>{alert('注册失败,请稍后再试')});
+				.catch((res)=>{
+					this.alert = '注册失败,请稍后再试';
+						this.alertShow = true;
+						let rtime = setTimeout(()=>{
+							this.alertShow = false;
+							this.alert = '';
+						},1500)
+				});
 			},
 			golink(){
 				this.$router.push('/login');
@@ -165,7 +190,8 @@
 		},
 		components:{
 			top,
-			captcha
+			captcha,
+			alert
 		}
 	}
 </script>

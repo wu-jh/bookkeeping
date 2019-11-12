@@ -38,6 +38,7 @@
 				<div><button class="btn" @click="submit">添加</button></div>
 				</div>
 			</div>
+			<alert v-if="alertShow">{{ alert }}</alert>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -46,6 +47,7 @@
 <script >
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
+	import alert from '../components/alert.vue'
 	import axios from 'axios'
 
 	export default {
@@ -63,21 +65,35 @@
 				avatar_url:[],
 				account:'',
 				account_id:'',
+				alert:'',
+				alertShow:false,
 			}
 		},
 		mounted(){
+			var date = new Date();
+			var year = date.getFullYear();
+			var month = date.getMonth();
+			month  = month < 10 ? '0' + month : month;
+			var day = date.getDate();
+			day  = day < 10 ? '0' + day : day;
+			this.date = year + '-' + month + '-' + day;
 			this.$store.commit('isLogin',this);
 			this.id = this.$route.query.id;
 			axios({
 				method:'get',
-				url:'http://jizhang-api-dev.it266.com/api/account?token=' + this.token
+				url:this.$store.state.url + '/api/account?token=' + this.token
 			})
 			.then((res)=>{
 				res = res.data;
 				if(res.status){
 					this.account = res.data;
 				}else{
-					alert(res.data);
+					this.alert = res.data;
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 				}
 			})
 			.catch(err=>console.log(err))
@@ -96,7 +112,7 @@
 						headers: {
 							'Content-Type': 'multipart/form-data'
 						},
-						url: 'http://jizhang-api-dev.it266.com/api/upload/image?token='+ this.token,
+						url: this.$store.state.url + '/api/upload/image?token='+ this.token,
 						data: fd
 					})
 					.then((res)=>{
@@ -106,11 +122,21 @@
 								this.image_keys.push(res.data.file.fileKey);
 								this.avatar_url.push(res.data.file.thumbnailUrl._temp);
 							}else{
-								alert(res.data.message)
+								this.alert = res.data.message;
+								this.alertShow = true;
+								let rtime = setTimeout(()=>{
+									this.alertShow = false;
+									this.alert = '';
+								},1500)
 							}
 							
 						}else{
-							alert('上传失败');
+							this.alert = '上传失败';
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500);
 						}
 					})
 					.catch(err => console.log(err))
@@ -120,30 +146,55 @@
 				var str = this.image_keys.join(',')
 				var preg = /^(\d+)(\.?)(\d*)$/;
 				if(!preg.test(this.money) || !preg.test(this.realityMoney)){
-					alert('请输入正确的金额');
+					this.alert = '请输入正确金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 				if(this.money == ""){
-					alert('记账金额不能为空');
+					this.alert = '请输入记账金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				if(this.account_id == ""){
-					alert('请选择一个账户');
+					this.alert = '请选择一个账户';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 
 				if(this.realityMoney == ""){
-					alert('实付金额不能为空');
+					this.alert = '请输入实付金额';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 				if(this.date == ""){
-					alert('日期不能为空');
+					this.alert = '请输入日期';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
 					return;
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/record/create?token='+ this.token,
+					url:this.$store.state.url + '/api/record/create?token='+ this.token,
 					params:{
 						total_money:this.money,
 						money:this.realityMoney,
@@ -158,10 +209,20 @@
 				.then((res)=>{
 						res = res.data;
 						if(res.status){
-							alert(res.data);
-							this.$router.push('/category');
+							this.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+								this.$router.push('/category');
+							},500)
 						}else{
-							alert(res.data)
+							this.alert = res.data;
+							this.alertShow = true;
+							let rtime = setTimeout(()=>{
+								this.alertShow = false;
+								this.alert = '';
+							},1500)
 						}
 					})
 					.catch(err=>console.log(err))
@@ -169,7 +230,8 @@
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert,
 		}
 	}
 </script>

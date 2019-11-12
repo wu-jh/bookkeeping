@@ -4,12 +4,14 @@
 		<div class="content">
 			<captcha :img="img" :btn1="btn1" :btn2="btn2" :warning="warning" :link="link" @img="getImg()" :value="value" @tel="value.tel=$event" @pwd="value.pwd=$event" @imgcode="value.img=$event"  @telblur="telblur" @pwdblur="pwdblur" @imgblur="imgblur" @submit="submit()" @register="register()" @link="changepwd()"/>
 		</div>
+		<alert v-if="alertShow">{{ alert }}</alert>
 	</div>
 </template>
 
 <script>
 	import top	from '../components/top.vue';
 	import captcha	from '../components/code.vue';
+	import alert	from '../components/alert.vue';
 	import axios	from 'axios';
 
 	export default {
@@ -27,7 +29,9 @@
 					pwd:'',
 					img:''
 				},
-				warning:''
+				warning:'',
+				alertShow:false,
+				alert:''
 			}
 		},
 		mounted(){
@@ -37,7 +41,7 @@
 			getImg(){
 				axios({
 					method:'get',
-					url:'http://jizhang-api-dev.it266.com/api/captcha'
+					url:this.$store.state.url + '/api/captcha'
 				})
 				.then((res)=>{
 					this.img = res.data.data;
@@ -88,7 +92,7 @@
 				}
 				axios({
 					method:'post',
-					url:'http://jizhang-api-dev.it266.com/api/user/token/mobile',
+					url:this.$store.state.url + '/api/user/token/mobile',
 					params:{
 						mobile:this.value.tel,
 						password:this.value.pwd,
@@ -109,7 +113,14 @@
 						this.getImg();
 					}
 				})
-				.catch((err)=>{alert('登录失败,请稍后重试')})
+				.catch((err)=>{
+					this.alert = '登录失败,请稍后重试';
+					this.alertShow = true;
+					let rtime = setTimeout(()=>{
+						this.alertShow = false;
+						this.alert = '';
+					},1500)
+				})
 			},
 			register(){
 				this.$router.push('/register')
@@ -120,7 +131,8 @@
 		},
 		components:{
 			top,
-			captcha
+			captcha,
+			alert
 		}
 	}
 </script>
