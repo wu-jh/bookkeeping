@@ -7,7 +7,7 @@
 			<div class="date">时间</div>
 		</div>
 		<div v-if="billList == 1" class="no">暂无账单</div>
-		<div v-for="item in billList" class="li" @click="$emit('click',item.id)">
+		<div v-if="billList != 1" v-for="item in billList" class="li" @click="$emit('click',item.id)">
 			<div class="name">{{ item.type == 1?'收入':'支出' }}</div>			
 			<div class="total-money">{{ item.total_money }}</div>
 			<div class="paid-money">{{ item.paid_money }}</div>

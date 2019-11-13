@@ -7,7 +7,7 @@
 			<div class="date">时间</div>
 		</div>
 		<div v-if="stayList == 1" class="none">暂无账单</div>
-		<div v-for="(item,index) in stayList"  class="li-warp" @click="show(index)">
+		<div v-if="stayList != 1" v-for="(item,index) in stayList"  class="li-warp" @click="show(index)">
 			<div :class="['li',active === index?'active':'']">
 				<!-- <div class="category">{{ categorys_name[item.category_id] }}</div> -->
 				<div class="name">{{ item.total_money }}</div>			
