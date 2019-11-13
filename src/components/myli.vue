@@ -1,7 +1,7 @@
 <template>
 	<div class="warp">
 		<div v-for="li in ul" class="li" @click="$emit(li.event)">
-			<div class="name"><span :class="li.icon"></span>{{ li.text }}</div>
+			<div class="name"><i :class="'iconfont '+li.icon"></i>{{ li.text }}</div>
 			<div class="see iconfont">&#xe6ab;</div>
 		</div>
 	</div>
@@ -39,9 +39,9 @@
 	.name{
 		float:left;
 		font-size:0.8em;
-		span{
+		.iconfont{
+			margin-right:5px;
 			color:#08c332;
-			margin-right:10px;
 			font-size:1em;
 		}
 	}

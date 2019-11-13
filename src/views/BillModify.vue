@@ -12,6 +12,7 @@
 				<button class="btn" @click="change()">提交修改</button>
 			</div>
 			<alert v-if="alertShow">{{ alert }}</alert>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -21,6 +22,7 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -30,6 +32,9 @@
 				title:'修改记账',
 				id:'',
 				billData:'',
+				alertShow:false,
+				alert:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -58,7 +63,7 @@
 					},1500)
 					return;
 				}
-
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/record/update?id='+ this.id +'&token=' + this.token,
@@ -79,8 +84,12 @@
 					if(res.status){
 						this.$router.go(-1)
 					}
+					this.delayed = false;
 				})
-				.catch(err=>console.log(err))
+				.catch((err)=>{
+					console.log(err)
+					this.delayed = false;
+				})
 			},
 			initialize(){
 				axios({
@@ -109,7 +118,8 @@
 		components:{
 			top,
 			bottom,
-			alert
+			alert,
+			delayed,
 		}
 	}
 </script>

@@ -6,6 +6,7 @@
 			<categorys :lis="active == 1?expend:income" @change="change($event)" @delete="del($event)"></categorys>
 			<alert v-if="alertShow">{{ alert }}</alert>
 			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -17,6 +18,7 @@
 	import bottom from '../components/bottom.vue'
 	import alert from '../components/alert.vue'
 	import confirm from '../components/confirm.vue'
+	import delayed from '../components/delayed.vue'
 	import categorys from '../components/setcategory.vue'
 	import axios from 'axios'
 
@@ -33,6 +35,7 @@
 				confirm:'',
 				confirmShow:false,
 				id:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -87,6 +90,7 @@
 			},
 			choice(event){
 				if(event){
+					this.delayed = true;
 					axios({
 						method:'post',
 						url:this.$store.state.url + '/api/category/delete?id='+ this.id.id +'&token=' + this.token,
@@ -100,8 +104,12 @@
 							this.alert = '';
 						},1500)
 						this.getCategory()
+						this.delayed = false;
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 					this.confirm = '';
 					this.confirmShow = false;
 				}else{
@@ -116,7 +124,8 @@
 			categorys,
 			bottom,
 			alert,
-			confirm
+			confirm,
+			delayed,
 		}
 	}
 </script>

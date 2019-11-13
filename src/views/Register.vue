@@ -2,15 +2,18 @@
 	<div>
 		<top :title="title" ></top>
 		<div class="content">
-			<captcha :img="img" :btn1="btn1" :warning="warning" :link="link" @img="getImg()" @sms="sms()" :value="value" @tel="value.tel=$event" @pwd="value.pwd=$event" @imgcode="value.img=$event" @smscode="value.sms=$event" @telblur="telblur" @pwdblur="pwdblur" @imgblur="imgblur" @smsblur="smsblur" @submit="submit()" @link="golink()"  :sms="true"/>
+			<captcha :img="img" :btn1="btn1" :warning="warning" :link="link" @img="getImg()" @sms="sms()" :value="value" @tel="value.tel=$event" @pwd="value.pwd=$event" @imgcode="value.img=$event" @smscode="value.sms=$event" @submit="submit()" @link="golink()"  :sms="true"/>
 		</div>
 		<alert v-if="alertShow">{{ alert }}</alert>
+		<delayed v-if="delayed"></delayed>
 	</div>
 </template>
 
 <script>
 	import top	from '../components/top.vue';
 	import captcha	from '../components/code.vue';
+	import alert	from '../components/alert.vue';
+	import delayed	from '../components/delayed.vue';
 	import axios	from 'axios';
 
 	export default {
@@ -30,6 +33,7 @@
 				warning:'',
 				alertShow:false,
 				alert:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -46,39 +50,6 @@
 				})
 				.catch(err=>console.log(err))
 			},
-
-			telblur(){
-				if(this.value.tel == ''){
-					this.warning = '电话号码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-
-			pwdblur(){
-				if(this.value.pwd == ''){
-					this.warning = '密码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-
-			imgblur(){
-				if(this.value.img == ''){
-					this.warning = '图形验证码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-
-			smsblur(){
-				if(this.value.sms == ''){
-					this.warning = '短信验证码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-
 			sms(){
 				if(this.value.tel == ''){
 					this.warning = '手机号不能为空';
@@ -147,7 +118,7 @@
 					this.warning = '短信验证码不能为空';
 					return;
 				}
-
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/user/register',
@@ -174,6 +145,7 @@
 							this.alert = '';
 						},1500)
 					}
+					this.delayed = false;
 				})
 				.catch((res)=>{
 					this.alert = '注册失败,请稍后再试';
@@ -182,6 +154,7 @@
 							this.alertShow = false;
 							this.alert = '';
 						},1500)
+						this.delayed = false;
 				});
 			},
 			golink(){
@@ -191,7 +164,8 @@
 		components:{
 			top,
 			captcha,
-			alert
+			alert,
+			delayed,
 		}
 	}
 </script>

@@ -2,20 +2,20 @@
 	<div class="bottom">
 		<ul class="warp">
 			<li :class="active == 1?'active':''" @click="active == 1?'return false':home()">
-				<div class="fa fa-align-left"></div>
-				<div>明细</div>
+				<div class="iconfont icon-mingxi"></div>
+				<div class="text">明细</div>
 			</li>
 			<li :class="active == 4?'active':''" @click="active == 4?'return false':stay()">
-				<div class="fa fa-tags "></div>
-				<div>待收付</div>
+				<div class="iconfont icon-daizhifu"></div>
+				<div class="text">待收付</div>
 			</li>
 			<li :class="active == 2?'active':''" @click="active == 2?'return false':add()">
-				<div class="fa fa-plus-square"></div>
-				<div>记账</div>
+				<div class="iconfont icon-jizhang"></div>
+				<div class="text">记账</div>
 			</li>
 			<li  :class="active == 3?'active':''" @click="active == 3?'return false':my()">
-				<div class="fa fa-user"></div>
-				<div>我的</div>
+				<div class="iconfont icon-wode1"></div>
+				<div class="text">我的</div>
 			</li>
 		</ul>
 	</div>
@@ -52,9 +52,9 @@
 		left:0;
 		border-top:1px solid #dedede;
 		z-index:1;
-
+		background:#f5f5f5;
 		font-size:0.85em;
-		color:#444;
+		color:#333;
 	}
 
 	.warp{
@@ -67,10 +67,16 @@
 		li{
 			flex:1;
 			text-align:center;
+			margin-top:2px;
 		}
 	}
 
 	.active{
 		color:#08c332;
+	}
+
+	.text{
+		font-size:0.8em;
+		margin-top:5px;			
 	}
 </style>

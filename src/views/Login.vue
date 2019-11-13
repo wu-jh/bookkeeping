@@ -2,9 +2,10 @@
 	<div>
 		<top :title="title" ></top>
 		<div class="content">
-			<captcha :img="img" :btn1="btn1" :btn2="btn2" :warning="warning" :link="link" @img="getImg()" :value="value" @tel="value.tel=$event" @pwd="value.pwd=$event" @imgcode="value.img=$event"  @telblur="telblur" @pwdblur="pwdblur" @imgblur="imgblur" @submit="submit()" @register="register()" @link="changepwd()"/>
+			<captcha :img="img" :btn1="btn1" :btn2="btn2" :warning="warning" :link="link" @img="getImg()" :value="value" @tel="value.tel=$event" @pwd="value.pwd=$event" @imgcode="value.img=$event" @submit="submit()" @register="register()" @link="changepwd()"/>
 		</div>
 		<alert v-if="alertShow">{{ alert }}</alert>
+		<delayed v-if="delayed"></delayed>
 	</div>
 </template>
 
@@ -12,6 +13,7 @@
 	import top	from '../components/top.vue';
 	import captcha	from '../components/code.vue';
 	import alert	from '../components/alert.vue';
+	import delayed	from '../components/delayed.vue';
 	import axios	from 'axios';
 
 	export default {
@@ -31,7 +33,8 @@
 				},
 				warning:'',
 				alertShow:false,
-				alert:''
+				alert:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -47,29 +50,6 @@
 					this.img = res.data.data;
 				})
 				.catch(err=>console.log(err))
-			},
-			telblur(){
-				if(this.value.tel == ''){
-					this.warning = '电话号码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-
-			pwdblur(){
-				if(this.value.pwd == ''){
-					this.warning = '密码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-
-			imgblur(){
-				if(this.value.img == ''){
-					this.warning = '图形验证码不能为空';
-				}else{
-					this.warning = ''
-				}
 			},
 
 			submit(){
@@ -90,6 +70,7 @@
 					this.warning = '图片验证码不能为空';
 					return;
 				}
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/user/token/mobile',
@@ -112,6 +93,7 @@
 						}
 						this.getImg();
 					}
+					this.delayed = false;
 				})
 				.catch((err)=>{
 					this.alert = '登录失败,请稍后重试';
@@ -120,6 +102,7 @@
 						this.alertShow = false;
 						this.alert = '';
 					},1500)
+					this.delayed = false;
 				})
 			},
 			register(){
@@ -132,7 +115,8 @@
 		components:{
 			top,
 			captcha,
-			alert
+			alert,
+			delayed,
 		}
 	}
 </script>

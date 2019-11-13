@@ -2,12 +2,12 @@
 	<div class="warp">
 		<div class="logo"><img src='img/logo.png' height="100%"></div>
 		<div class="form">
-			<div class="warning" v-show="warning">{{ warning }}</div>
-			<input type="text" class="uname" placeholder="手机号" :value="value.tel" @input="$emit('tel', $event.target.value)" @blur="$emit('telblur')">
-			<input type="password" class="pwd" placeholder="密码" :value="value.pwd" @input="$emit('pwd', $event.target.value)" @blur="$emit('pwdblur')">
-			<input v-if="img" class="img-code" type="text" placeholder="图片验证码" :value="value.img" @input="$emit('imgcode', $event.target.value)" @blur="$emit('imgblur')">
+			<div class="warning" v-show="warning"><i class="fa fa-exclamation-triangle"></i>{{ warning }}</div>
+			<input type="text" class="uname" placeholder="手机号" :value="value.tel" @input="$emit('tel', $event.target.value)">
+			<input type="password" class="pwd" placeholder="密码" :value="value.pwd" @input="$emit('pwd', $event.target.value)">
+			<input v-if="img" class="img-code" type="text" placeholder="图片验证码" :value="value.img" @input="$emit('imgcode', $event.target.value)">
 			<span v-if="img" class="img" @click="$emit('img')"><img :src="img.url" height="100%" width="100%"></span>
-			<input v-if="sms" class="msg-code" type="text" placeholder="短信验证码" :value="value.sms" @input="$emit('smscode', $event.target.value)" @blur="$emit('smsblur')">
+			<input v-if="sms" class="msg-code" type="text" placeholder="短信验证码" :value="value.sms" @input="$emit('smscode', $event.target.value)">
 			<span v-if="sms" class="msg" @click="$emit('sms')">发送验证码</span>
 			<button class="btn1" @click="$emit('submit')">{{ btn1 }}</button>
 			<button v-if="btn2" class="btn2" @click="$emit('register')"><p>{{ btn2 }}</p></button>
@@ -117,15 +117,15 @@
 		.warning{
 			width:calc(90% + 10px);
 			margin:auto;
-			height:20px;
-			line-height:20px;
+			height:30px;
+			line-height:30px;
 			border:solid 1px red;
 			color:red;
 			margin-bottom:5px;
 			font-size:0.8em;
 			padding-left:10px;
-			&::before{
-				content:'!'
+			i{
+				margin-right:5px;
 			}
 		}
 	}

@@ -5,6 +5,7 @@
 			<account :account="account" :active="active" @show="show($event)" @del='del($event)' @details="details($event)"></account>
 			<alert v-if="alertShow">{{ alert }}</alert>
 			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -16,6 +17,7 @@
 	import account from '../components/account.vue'
 	import alert from '../components/alert.vue'
 	import confirm from '../components/confirm.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -30,6 +32,7 @@
 				confirmShow:false,
 				id:'',
 				active:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -73,6 +76,7 @@
 
 			choice(e){
 				if(e){
+					this.delayed = true;
 					axios({
 						method:'post',
 						url:this.$store.state.url + '/api/account/delete?id='+ this.id +'&token=' + this.token,
@@ -98,8 +102,12 @@
 								this.alert = '';
 							},1500)
 						}
+						this.delayed = false;
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 				}else{
 					this.confirm = '';
 					this.confirmShow = false;
@@ -115,6 +123,7 @@
 			account,
 			alert,
 			confirm,
+			delayed,
 		}
 	}
 </script>

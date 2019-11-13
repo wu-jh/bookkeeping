@@ -6,9 +6,9 @@
 			<div class="search-warp">
 				<div class="search">
 					<input type="text" placeholder="搜索交易对象" v-model="company_name">
-					<button class="btn" @click="search()">搜索</button>
+					<button class="btn" @click="search()"><i class="iconfont icon-sousuo"></i></button>
 				</div>
-				<div class="screen" @click="screen"><i class="fa fa-navicon"></i>筛选</div>
+				<div class="screen" @click="screen"><i class="iconfont icon-filter"></i>筛选</div>
 				<div v-show="open" class="open">
 					<div class="date">
 						<div class="start">
@@ -30,6 +30,7 @@
 			</div>
 			<stayList :stayList="record"  @click="add($event)"></stayList>
 			<div id="more" :class="['more',page.currentPage == page.pageCount?'load':'']" >正在加载 <i class="fa fa-spinner fa-pulse"></i></div>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom :active="4"></bottom>
 	</div>
@@ -41,6 +42,7 @@
 	import pulldown from '../components/option.vue'
 	import stayList from '../components/stayList.vue'
 	import tab from '../components/tab.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -65,6 +67,7 @@
 				firstDay:'',
 				lastDay:'',
 				company_name:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -89,6 +92,9 @@
 				this.open = !this.open 
 			},
 			getdata(obj){
+				if(this.record.length == 0){
+					this.delayed = true;
+				}
 				axios({
 					method:'get',
 					url:this.$store.state.url + '/api/record/account/waiting?token=' + this.token,
@@ -96,11 +102,19 @@
 				})
 				.then((res)=>{
 					res = res.data;
-					this.record = this.record.concat(res.data.list);
+					if(res.data.list.length != 0){
+						this.record = this.record.concat(res.data.list);
+					}else{
+						this.record = 1;
+					}
 					this.page = res.data.page;
 					this.open = false;
+					this.delayed = false;
 				})
-				.catch(err=>console.log(err))
+				.catch((err)=>{
+					console.log(err);
+					this.delayed = false;
+				})
 			},
 
 			getcategory(obj){
@@ -175,6 +189,7 @@
 			},
 
 			condition(obj){
+				this.page = '';
 				obj['type'] = this.type_value;
 
 				if(this.category_value){
@@ -201,7 +216,8 @@
 			bottom,
 			tab,
 			stayList,
-			pulldown
+			pulldown,
+			delayed,
 		}
 
 	}
@@ -228,31 +244,35 @@
 		}
 	}
 	.search{
-		height:35px;
+		height:30px;
 		width:80%;
 		float:left;
 		position:relative;
 		input{
 			width:100%;
-			height:35px;
+			height:100%;
 			outline:none;
 			border:solid 1px #ccc;
 			box-sizing:border-box;
 			padding-left:10px;
+			border-radius:15px;
+			font-size:0.5em;
 			&:focus{
 				border-color:#08c332;
 			}
 		}
 		.btn{
-			width:50px;
+			width:40px;
 			height:100%;
 			border:none;
-			background:#08c332;
+			background:none;
 			outline:none;
-			color:#fff;
+			color:#ccc;
+			border-radius:15px;
 			position:absolute;
 			right:0;
 			top:0;
+			color:#666;
 		}
 	}
 
@@ -271,10 +291,11 @@
 	.screen{
 		float:right;
 		font-size:0.8em;
-		line-height:35px;
+		line-height:30px;
 		color:#08c332;
 		i{
-			margin-right:3px;
+			font-size:1.8em;
+			vertical-align:middle;
 		}
 	}
 

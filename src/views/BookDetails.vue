@@ -26,6 +26,7 @@
 			<alert v-if="alertShow">{{ alert }}</alert>
 			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
 			<confirm v-if="confirmShow1" @choice="choice1($event)">{{ confirm1 }}</confirm>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -36,6 +37,7 @@
 	import bottom from '../components/bottom.vue'
 	import memberList from '../components/memberList.vue'
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import confirm from '../components/confirm.vue'
 	import axios from 'axios'
 
@@ -56,6 +58,7 @@
 				confirm1:'',
 				confirmShow1:false,
 				did:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -82,6 +85,7 @@
 						},1500)
 					return;
 				}
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/book/update?token=' + this.token,
@@ -110,8 +114,12 @@
 						this.getinfomation();
 						this.active = true;
 					}
+					this.delayed = false;
 				})
-				.catch(err=>console.log(err))
+				.catch((err)=>{
+					console.log(err);
+					this.delayed = false;
+				})
 			},
 			getinfomation(){
 				axios({
@@ -168,6 +176,7 @@
 				if(event){
 					this.confirm = '';
 					this.confirmShow = false;
+					this.delayed = true;
 					axios({
 						method:'get',
 						url:this.$store.state.url + '/api/book/delete?token=' + this.token,
@@ -193,8 +202,12 @@
 								this.alert = '';
 							},1500)
 						}
+						this.delayed = false;
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 					
 				}else{
 					this.confirm = '';
@@ -203,6 +216,7 @@
 			},
 			choice1(event){
 				if(event){
+					this.delayed = true;
 					axios({
 						method:'post',
 						url:this.$store.state.url + '/api/member/delete?token=' + this.token,
@@ -223,8 +237,12 @@
 							this.getinfomation();
 							this.getmember();
 						}
+						this.delayed = false;
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 					this.confirm1 = '';
 					this.confirmShow1 = false;
 				}else{
@@ -239,6 +257,7 @@
 			memberList,
 			alert,
 			confirm,
+			delayed,
 		}
 	}
 </script>

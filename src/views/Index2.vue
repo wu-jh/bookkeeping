@@ -7,9 +7,9 @@
 			<div class="search-warp">
 				<div class="search">
 					<input type="text" placeholder="搜索交易对象" v-model="company_name">
-					<button class="btn" @click="search()"><i class="iconfont icon-sousuo"></i></button>
+					<button class="btn" @click="search()">搜索</button>
 				</div>
-				<div class="screen" @click="screen"><i class="iconfont icon-filter"></i>筛选</div>
+				<div class="screen" @click="screen"><i class="fa fa-navicon"></i>筛选</div>
 				<div v-show="open" class="open">
 					<div class="date">
 						<div class="start">
@@ -372,35 +372,31 @@
 		}
 	}
 	.search{
-		height:30px;
+		height:35px;
 		width:80%;
 		float:left;
 		position:relative;
 		input{
 			width:100%;
-			height:100%;
+			height:35px;
 			outline:none;
 			border:solid 1px #ccc;
 			box-sizing:border-box;
 			padding-left:10px;
-			border-radius:15px;
-			font-size:0.5em;
 			&:focus{
 				border-color:#08c332;
 			}
 		}
 		.btn{
-			width:40px;
+			width:50px;
 			height:100%;
 			border:none;
-			background:none;
+			background:#08c332;
 			outline:none;
-			color:#ccc;
-			border-radius:15px;
+			color:#fff;
 			position:absolute;
 			right:0;
 			top:0;
-			color:#666;
 		}
 	}
 
@@ -418,11 +414,10 @@
 	.screen{
 		float:right;
 		font-size:0.8em;
-		line-height:30px;
+		line-height:35px;
 		color:#08c332;
 		i{
-			font-size:1.8em;
-			vertical-align:middle;
+			margin-right:3px;
 		}
 	}
 

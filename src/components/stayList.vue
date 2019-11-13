@@ -6,7 +6,7 @@
 			<div class="money">实际金额</div>
 			<div class="date">时间</div>
 		</div>
-		<div v-if="stayList == ''" class="none">暂无账单</div>
+		<div v-if="stayList == 1" class="none">暂无账单</div>
 		<div v-for="(item,index) in stayList"  class="li-warp" @click="show(index)">
 			<div :class="['li',active === index?'active':'']">
 				<!-- <div class="category">{{ categorys_name[item.category_id] }}</div> -->
@@ -48,7 +48,6 @@
 			font-size:0.8em;
 			display:flex;
 			color:#08c332;
-			text-align:center;
 			border-bottom:solid 1px #f5f5f5;
 		}
 	}
@@ -62,7 +61,7 @@
 
 	.li{
 		width:100%;
-		height:40px;
+		height:39px;
 		line-height:40px;
 		font-size:0.8em;
 		display:flex;
@@ -71,7 +70,6 @@
 		left:0;
 		top:0;
 		transition:all 0.7s;
-		text-align:center;
 	}
 
 	.active{
@@ -87,7 +85,6 @@
 	}
 	.date{
 		flex:1;
-		text-align:center;
 	}
 
 	.category{

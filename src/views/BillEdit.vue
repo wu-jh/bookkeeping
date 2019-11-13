@@ -34,6 +34,7 @@
 				</div>
 			</div>
 			<alert v-if="alertShow">{{ alert }}</alert>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -43,6 +44,7 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -57,7 +59,10 @@
 				isdisabled:true,
 				avatar_url:[],
 				image_keys:[],
-				setUp:'修改'
+				setUp:'修改',
+				alertShow:false,
+				alert:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -96,6 +101,7 @@
 		        for(var i=0;i<files.length;i++){
 		        	const fd = new FormData();
 		        	fd.append('file', files[i]);
+		        	this.delayed = true;
 		        	axios({
 						method: 'post',
 						headers: {
@@ -127,8 +133,12 @@
 								this.alert = '';
 							},1500)
 						}
+						this.delayed = false;
 					})
-					.catch(err => console.log(err))
+					.catch((err) => {
+						console.log(err);
+						this.delayed = false;
+					})
 		        }
 			},
 			edit(){
@@ -171,7 +181,7 @@
 					},1500)
 					return;
 				}
-
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/record/item/update?itemId='+ this.billData.id +'&token=' + this.token,
@@ -193,14 +203,19 @@
 						if(res.status){
 							this.$router.push({'path':'/billDetails',query:{id:this.id}})
 						}
+						this.delayed = false;
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 			}
 		},
 		components:{
 			top,
 			bottom,
-			alert
+			alert,
+			delayed,
 		}
 	}
 </script>

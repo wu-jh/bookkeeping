@@ -6,6 +6,7 @@
 			<transition name="fade">
 				<alert v-if="alertShow">{{ alert }}</alert>
 			</transition>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -16,6 +17,7 @@
 	import bottom from '../components/bottom.vue'
 	import accountBookList from '../components/accountBookList.vue'
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -27,6 +29,7 @@
 				defaultbook:'',
 				alert:'',
 				alertShow:false,
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -35,6 +38,7 @@
 		},
 		methods:{
 			set(id){
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/book/set-default?token=' + this.token,
@@ -49,9 +53,12 @@
 						this.alert = '';
 					},1500)
 					this.getbooks()
-					
+					this.delayed = false;
 				})
-				.catch(err=>console.log(err))
+				.catch((err)=>{
+					console.log(err);
+					this.delayed = false;
+				})
 			},
 			getbooks(){
 				//所有账簿
@@ -87,7 +94,8 @@
 			top,
 			accountBookList,
 			bottom,
-			alert
+			alert,
+			delayed,
 		}
 	}
 </script>

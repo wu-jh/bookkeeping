@@ -2,9 +2,10 @@
 	<div>
 		<top :title="title"></top>
 		<div class="content">
-			<captcha :img="img" :btn1="btn1" :sms="true" :link="link" :value="value" @img="getImg()" @imgcode="value.img=$event" @imgblur="imgblur" :warning="warning" @tel="value.tel=$event" @pwd="value.pwd=$event" @smscode="value.sms=$event" @sms="sms()" @telblur="telblur" @pwdblur="pwdblur" @smsblur="smsblur" @submit="submit()" @link="golink()"/>
+			<captcha :img="img" :btn1="btn1" :sms="true" :link="link" :value="value" @img="getImg()" @imgcode="value.img=$event"    :warning="warning" @tel="value.tel=$event" @pwd="value.pwd=$event" @smscode="value.sms=$event" @sms="sms()" @submit="submit()" @link="golink()"/>
 		</div>
 		<alert v-if="alertShow">{{ alert }}</alert>	
+		<delayed v-if="delayed"></delayed>
 	</div>
 </template>
 
@@ -12,6 +13,7 @@
 	import top	from '../components/top.vue';
 	import captcha	from '../components/code.vue';
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import axios	from 'axios';
 
 	export default {
@@ -30,6 +32,7 @@
 				warning:'',
 				alert:'',
 				alertShow:false,
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -45,35 +48,6 @@
 					this.img = res.data.data;
 				})
 				.catch(err=>console.log(err))
-			},
-			telblur(){
-				if(this.value.tel == ''){
-					this.warning = '电话号码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-
-			pwdblur(){
-				if(this.value.pwd == ''){
-					this.warning = '密码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-			imgblur(){
-				if(this.value.img == ''){
-					this.warning = '图形验证码不能为空';
-				}else{
-					this.warning = ''
-				}
-			},
-			smsblur(){
-				if(this.value.sms == ''){
-					this.warning = '短信验证码不能为空';
-				}else{
-					this.warning = ''
-				}
 			},
 
 			sms(){
@@ -91,6 +65,7 @@
 					this.warning = '图形验证码不能为空';
 					return;
 				}
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/sms/verify',
@@ -112,8 +87,12 @@
 						}
 						this.getImg();
 					}
+					this.delayed = false;
 				})
-				.catch(err=>console.log(err))
+				.catch((err)=>{
+					console.log(err);
+					this.delayed = false;
+				})
 
 			},
 			submit(){
@@ -138,6 +117,7 @@
 					this.warning = '短信验证码不能为空';
 					return;
 				}
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/user/token/sms',
@@ -157,6 +137,7 @@
 							this.alert = '';
 						},1500)
 					}
+					this.delayed = false;
 				})
 				.catch((res)=>{
 					this.alert = '修改失败,请稍后重试';
@@ -165,6 +146,7 @@
 						this.alertShow = false;
 						this.alert = '';
 					},1500)
+					this.delayed = false;
 				});
 			},
 			golink(){
@@ -175,7 +157,8 @@
 			top,
 			captcha,
 			axios,
-			alert
+			alert,
+			delayed
 		}
 	}
 </script>

@@ -4,6 +4,7 @@
 		<div class="content">
 			<tab :active="active" @expend="active=1" @income="active=2" :name_1="'支出'" :name_2="'收入'"></tab>
 			<categorys :lis="active == 1?expend:income" @click="add($event)"></categorys>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom :active="2"></bottom>
 	</div>
@@ -14,6 +15,7 @@
 	import bottom from '../components/bottom.vue'
 	import categorys from '../components/category.vue'
 	import tab from '../components/tab.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -23,7 +25,8 @@
 				title:'记一笔',
 				active:1,
 				expend:'',
-				income:''
+				income:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -72,7 +75,8 @@
 			top,
 			categorys,
 			tab,
-			bottom
+			bottom,
+			delayed,
 		}
 	}
 </script>

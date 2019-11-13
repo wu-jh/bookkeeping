@@ -40,6 +40,7 @@
 			<alert v-if="alertShow">{{ alert }}</alert>
 			<confirm v-if="confirmShow" @choice="choice($event)">{{ confirm }}</confirm>
 			<confirm v-if="confirmShow1" @choice="choice1($event)">{{ confirm1 }}</confirm>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -50,6 +51,7 @@
 	import bottom from '../components/bottom.vue'
 	import alert from '../components/alert.vue'
 	import confirm from '../components/confirm.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -67,6 +69,7 @@
 				confirm1:'',
 				confirmShow1:false,
 				account_id:'',
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -92,6 +95,7 @@
 				this.account_id = id;
 			},
 			initialize(){
+					this.delayed = true;
 				axios({
 					method:'get',
 					url:this.$store.state.url + '/api/record/detail?id='+ this.id +'&token=' + this.token,
@@ -108,6 +112,7 @@
 							this.alert = '';
 						},1500)
 					}
+					this.delayed = false;
 				})
 				.catch(err=>console.log(err))
 			},
@@ -117,6 +122,7 @@
 
 			choice(event){
 				if(event){
+					this.delayed = true;
 					axios({
 						method:'post',
 						url:this.$store.state.url + '/api/record/delete?id='+ this.id +'&token=' + this.token
@@ -139,8 +145,12 @@
 								this.alert = '';
 							},1500)
 						}
+						this.delayed = false;
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 					this.confirm = '';
 					this.confirmShow = false;
 				}else{
@@ -151,6 +161,7 @@
 
 			choice1(event){
 				if(event){
+					this.delayed = true;
 					axios({
 						method:'post',
 						url:this.$store.state.url + '/api/record/item/delete?itemId='+ this.account_id +'&token=' + this.token
@@ -166,8 +177,12 @@
 						if(res.status){
 							this.initialize();
 						}
+						this.delayed = false;
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 					this.confirm1 = '';
 					this.confirmShow1 = false;
 				}else{
@@ -181,7 +196,8 @@
 			top,
 			bottom,
 			alert,
-			confirm
+			confirm,
+			delayed,
 		}
 	}
 </script>

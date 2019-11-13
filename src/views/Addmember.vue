@@ -8,6 +8,7 @@
 				<button class="submit" @click="submit">添加</button>
 			</div>
 			<alert v-if="alertShow">{{ alert }}</alert>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -17,6 +18,7 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -28,6 +30,7 @@
 				id:'',
 				alert:'',
 				alertShow:false,
+				delayed:false,
 			}
 		},
 		mounted(){
@@ -56,7 +59,7 @@
 					},1500)
 					return;
 				}
-
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/member/add?token=' + this.token,
@@ -83,13 +86,19 @@
 							this.alert = '';
 						},1500)
 					}
+					this.delayed = false;
 				})
-				.catch(err=>console.log(err))
+				.catch((err)=>{
+					console.log(err);
+					this.delayed = false;
+				})
 			}
 		},
 		components:{
 			top,
-			bottom
+			bottom,
+			alert,
+			delayed,
 		}
 	}
 </script>

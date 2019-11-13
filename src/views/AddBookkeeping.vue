@@ -39,6 +39,7 @@
 				</div>
 			</div>
 			<alert v-if="alertShow">{{ alert }}</alert>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -48,6 +49,7 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -67,13 +69,14 @@
 				account_id:'',
 				alert:'',
 				alertShow:false,
+				delayed:false,
 			}
 		},
 		mounted(){
 			var date = new Date();
 			var year = date.getFullYear();
 			var month = date.getMonth();
-			month  = month < 10 ? '0' + month : month;
+			month  = (month+1) < 10 ? '0' + (month+1) : (month+1);
 			var day = date.getDate();
 			day  = day < 10 ? '0' + day : day;
 			this.date = year + '-' + month + '-' + day;
@@ -192,6 +195,7 @@
 					},1500)
 					return;
 				}
+				this.delayed = true;
 				axios({
 					method:'post',
 					url:this.$store.state.url + '/api/record/create?token='+ this.token,
@@ -215,6 +219,7 @@
 								this.alertShow = false;
 								this.alert = '';
 								this.$router.push('/category');
+								this.delayed = false;
 							},500)
 						}else{
 							this.alert = res.data;
@@ -222,16 +227,22 @@
 							let rtime = setTimeout(()=>{
 								this.alertShow = false;
 								this.alert = '';
+								this.delayed = false;
 							},1500)
 						}
+						
 					})
-					.catch(err=>console.log(err))
+					.catch((err)=>{
+						console.log(err);
+						this.delayed = false;
+					})
 			}
 		},
 		components:{
 			top,
 			bottom,
 			alert,
+			delayed,
 		}
 	}
 </script>
@@ -244,13 +255,14 @@
 	}
 
 	.form{
-		width:70%;
+		width:80%;
 		margin:30px auto;
 		font-size:0.8em;
 		input{
-			width:calc(100% - 10px);
+			width:100%;
 			margin:10px 0;
-			height:30px;
+			height:33px;
+			box-sizing:border-box;
 			outline:none;
 			padding-left:10px;
 			border:solid 1px #ccc;
@@ -264,7 +276,7 @@
 		select{
 			width:100%	;
 			margin:10px 0;
-			height:30px;
+			height:33px;
 			outline:none;
 			padding-left:10px;
 			border:solid 1px #ccc;
@@ -307,7 +319,7 @@
 
 	.btn{
 		width:100%;
-		height:30px;
+		height:33px;
 		border:none;
 		color:#fff;
 		background:#08c332;

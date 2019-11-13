@@ -27,6 +27,7 @@
 			<transition name="fade">
 				<alert v-if="alertShow">{{ alert }}</alert>
 			</transition>
+			<delayed v-if="delayed"></delayed>
 		</div>
 		<bottom></bottom>
 	</div>
@@ -36,6 +37,7 @@
 	import top from '../components/top.vue'
 	import bottom from '../components/bottom.vue'
 	import alert from '../components/alert.vue'
+	import delayed from '../components/delayed.vue'
 	import axios from 'axios'
 
 	export default {
@@ -49,6 +51,7 @@
 				summary:'',
 				alert:'',
 				alertShow:false,
+				delayed:false,
 			}
 		},
 		mounted(){

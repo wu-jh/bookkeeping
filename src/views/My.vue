@@ -26,19 +26,19 @@
 				user:{},
 				uls:[
 						[
-							{text:'我的账户',icon:'fa fa-database',event:'accountList'},
-							{text:'我的账簿',icon:'fa fa-file-text-o',event:'accountBook'}
+							{text:'我的账户',icon:'icon-shujuku',event:'accountList'},
+							{text:'我的账簿',icon:'icon-zhangbu',event:'accountBook'}
 						],
 						[
-							{text:'修改资料',icon:"fa fa-file-o",event:'dataEdit'},
-							{text:'修改手机号',icon:"fa fa-tablet",event:'telEdit'},
-							{text:'修改密码',icon:"fa fa-unlock-alt",event:'pwdEdit'},
+							{text:'修改资料',icon:"icon-xiugaiziliao",event:'dataEdit'},
+							{text:'绑定手机',icon:"icon-xiugaishoujihao1",event:'telEdit'},
+							{text:'修改密码',icon:"icon-mima",event:'pwdEdit'},
 						],
 						[
-							{text:'意见反馈',icon:"fa fa-envelope-o",event:'feedback'}
+							{text:'意见反馈',icon:"icon-yijianfankui1",event:'feedback'}
 						],
 						[
-							{text:'退出登录',icon:"fa fa-power-off",event:'exit'}
+							{text:'退出登录',icon:"icon-084tuichu",event:'exit'}
 						]
 				],
 				alertShow:false,

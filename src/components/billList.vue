@@ -5,7 +5,7 @@
 			<div class="money">金额</div>
 			<div class="date">时间</div>
 		</div>
-		<div v-if="billList == ''" class="no">暂无账单</div>
+		<div v-if="billList == 1" class="no">暂无账单</div>
 		<div v-for="item in billList" class="li" @click="$emit('click',item.record_id)">
 			<div class="name">{{ item.type == 1?'收入':'支出' }}</div>			
 			<div class="money">{{ item.money }}</div>
@@ -23,7 +23,7 @@
 
 <style scoped lang="scss">
 	.warp{
-		width:85%;
+		width:90%;
 		margin:auto;
 		margin-top:10px;
 		font-size:0.8em;
