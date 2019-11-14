@@ -5,7 +5,7 @@
 			<div class="initial-balance">初始余额</div>
 			<div class="balance">当前余额</div>
 		</div>
-		<div class="account-warp" v-for="(item,index) in account" @click="$emit('show',index)">
+		<div class="account-warp" v-for="(item,index) in account" :key="index" @click="$emit('show',index)">
 			<div :class="['account',active === index?'active':active === ''?'':'active1']">
 				<div class="account-name">{{ item.name }}</div>
 				<div class="initial-balance">{{ item.initial_balance }}</div>
@@ -55,7 +55,7 @@
 		width:100%;
 		height:45px;
 		overflow:hidden;
-		border-bottom:$border #ccc;
+		border-bottom:$border #ccc; 
 		position:relative;
 	}
 

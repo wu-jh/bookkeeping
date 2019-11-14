@@ -6,7 +6,7 @@
 			<div class="date">创建时间</div>
 			<div class="default"></div>
 		</div>
-		<div v-for="item in accountBooks" class="li" @click="$emit('details',item.id)">
+		<div v-for="(item,index) in accountBooks" :key="index" class="li" @click="$emit('details',item.id)">
 			<div class="name">{{item.name}}</div>			
 			<div class="money">{{item.user_name}}</div>
 			<div class="date">{{item.created_at}}</div>
